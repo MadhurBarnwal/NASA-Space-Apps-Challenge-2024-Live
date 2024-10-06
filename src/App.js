@@ -3,14 +3,15 @@ import { Canvas, useFrame, useLoader } from '@react-three/fiber';
 import { OrbitControls, Stars, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { TextureLoader } from 'three';
-// Constants for distances
-const AU = 15; // Distance of Earth from the Sun (in arbitrary units)
+import { EffectComposer, Bloom, DepthOfField } from '@react-three/postprocessing';
+
+const AU = 15; // Distance of Earth from the Sun (in some assumed units)
 // Sun Component
 function Sun() {
   const sunRef = useRef();
   const [scale, setScale] = useState(0.95);
   const [direction, setDirection] = useState(1); // 1 for increasing, -1 for decreasing  
-  // Load the Sun texture
+  // Loading the Sun texture
   const textureUrl = `${process.env.PUBLIC_URL}/textures/sun.jpg`;
   const sunTexture = useLoader(THREE.TextureLoader, textureUrl);
   useFrame(() => {
@@ -30,7 +31,7 @@ function Sun() {
       return newScale; // Return the new scale
     });
     
-    // Set the scale of the Sun
+    // Setting the scale of the Sun
     sunRef.current.scale.set(scale, scale, scale);
   });
 
@@ -236,6 +237,25 @@ function App() {
       <L2Point />
       <JWST />
       <AxisArrows />
+
+      
+      {/* Post-processing effects */}
+      <EffectComposer>
+        <Bloom
+          intensity={0.5} // Adjust intensity for the bloom effect
+          width={300} // Resolution width for bloom effect
+          height={300} // Resolution height for bloom effect
+          kernelSize={3} // Kernel size for blur
+          luminanceThreshold={0.3} // Minimum brightness to consider for bloom
+          luminanceSmoothing={0.7} // Smoothing of the luminance threshold
+        />
+        <DepthOfField
+          focalLength={0.0002} // Adjust for how blurred background will be
+          focalDistance={0.1} // Adjust for focal distance
+          bokehScale={0.1} // Adjust for bokeh scaling
+          height={480} // Height of the effect
+        />
+      </EffectComposer>
     </Canvas>
   );
 }
